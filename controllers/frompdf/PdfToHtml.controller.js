@@ -1,0 +1,81 @@
+// /controller/fromPdf/pdfToHtml.controller.js
+import path from "path";
+import fs from "fs";
+import axios from "axios";
+import dotenv from "dotenv";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+dotenv.config();
+
+const API_KEY = process.env.API_KEY;
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export const convertPdfToHtml = async (req, res) => {
+  if (!req.file) return res.status(400).send("No file uploaded");
+
+  const filePath = req.file.path;
+  const fileName = path.basename(filePath);
+  const outputFileName = fileName.replace(/\.[^/.]+$/, "") + ".html";
+  const outputPath = path.join(__dirname, "../../converted", outputFileName);
+
+  try {
+    // Step 1: Get Presigned URL
+    const presignRes = await axios.get("https://api.pdf.co/v1/file/upload/get-presigned-url", {
+      params: {
+        name: fileName,
+        contenttype: "application/octet-stream"
+      },
+      headers: { "x-api-key": API_KEY }
+    });
+
+    const { presignedUrl, url: uploadedFileUrl } = presignRes.data;
+
+    // Step 2: Upload the file
+    const fileBuffer = fs.readFileSync(filePath);
+    await axios.put(presignedUrl, fileBuffer, {
+      headers: { "Content-Type": "application/octet-stream" }
+    });
+
+    // Step 3: Convert PDF to HTML
+    const convertRes = await axios.post(
+      "https://api.pdf.co/v1/pdf/convert/to/html",
+      {
+        name: outputFileName,
+        url: uploadedFileUrl
+      },
+      {
+        headers: {
+          "x-api-key": API_KEY,
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    // Step 4: Download the HTML file to server
+    const htmlDownload = await axios.get(convertRes.data.url, { responseType: "stream" });
+    const writer = fs.createWriteStream(outputPath);
+
+    htmlDownload.data.pipe(writer);
+
+    writer.on("finish", () => {
+      res.status(200).json({
+        success: true,
+        fileName: outputFileName,
+        message: "PDF converted to HTML successfully",
+        downloadUrl: `/api/download/${outputFileName}`
+      });
+    });
+
+    writer.on("error", (err) => {
+      console.error("File write error:", err.message);
+      res.status(500).json({ error: "Failed to write HTML file." });
+    });
+  } catch (error) {
+    console.error("PDF to HTML conversion error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to convert PDF to HTML." });
+  }
+};
+  

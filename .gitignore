@@ -1,0 +1,13 @@
+# Ignore all files in uploads and converted folders
+uploads/*
+converted/*
+
+# But don't ignore .gitkeep files
+!uploads/.gitkeep
+!converted/.gitkeep
+
+# Ignore env file
+.env
+
+# Node modules
+node_modules/
