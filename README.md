@@ -9,8 +9,8 @@ This app uses API from pdf.co
 ---------
 Features of the app include
 
-1. Convert a PDF file to html, jpg, png
-2. Convert a docx, html, jpg, png, xlsx to PDF
+1. Convert a PDF file to html, jpg, png, xls
+2. Convert a docx, html, jpg, png, xls to PDF
 
 use my api key to test the routes 
 
