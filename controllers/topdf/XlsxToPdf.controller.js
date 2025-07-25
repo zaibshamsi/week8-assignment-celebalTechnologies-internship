@@ -55,7 +55,7 @@ export const convertxlsxToPdf = async (req, res) => {
     pdfDownload.data.pipe(writer);
 
     writer.on("finish", () => {
-  const downloadUrl = `/download/${path.basename(outputPath)}`;
+  const downloadUrl = `/api/convert/download/${path.basename(outputPath)}`;
   res.json({ success: true, downloadUrl });
 });
 

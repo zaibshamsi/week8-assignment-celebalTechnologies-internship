@@ -66,7 +66,7 @@ export const convertPdfToPng = async (req, res) => {
     writer.on("finish", () => {
       res.status(200).json({
         success: true,
-        downloadUrl: `/api/frompdf/download/${outputFileName}`
+        downloadUrl: `/api/convert/download/${outputFileName}`
       });
     });
 

@@ -24,5 +24,5 @@ topdfRoutes.post("/xlsx", upload.single("file"), convertxlsxToPdf);  // xlsx to 
 topdfRoutes.post("/html", upload.single("file"), convertHtmlToPdf);  // html to pdf
 
 
-topdfRoutes.get("/download/:fileName", downloadConvertedFile);
+// topdfRoutes.get("/download/:fileName", downloadConvertedFile);
  

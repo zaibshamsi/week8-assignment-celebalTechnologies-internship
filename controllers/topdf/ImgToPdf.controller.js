@@ -58,7 +58,7 @@ export const convertImgToPdf = async ( req, res ) => {
     writer.on("finish", () => {
       res.status(200).json({
         success: true,
-        downloadUrl: `/api/convert/topdf/download/${outputFileName}`
+        downloadUrl: `/api/convert/download/${outputFileName}`
       })
     })
 

@@ -13,12 +13,12 @@ const API_KEY = process.env.API_KEY;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export const convertPdfToHtml = async (req, res) => {
+export const convertPdfToXls = async (req, res) => {
   if (!req.file) return res.status(400).send("No file uploaded");
 
   const filePath = req.file.path;
   const fileName = path.basename(filePath);
-  const outputFileName = fileName.replace(/\.[^/.]+$/, "") + ".html";
+  const outputFileName = fileName.replace(/\.[^/.]+$/, "") + ".xls";
   const outputPath = path.join(__dirname, "../../converted", outputFileName);
 
   try {
@@ -39,9 +39,9 @@ export const convertPdfToHtml = async (req, res) => {
       headers: { "Content-Type": "application/octet-stream" }
     });
 
-    // Step 3: Convert PDF to HTML
+    // Step 3: Convert PDF to XLS
     const convertRes = await axios.post(
-      "https://api.pdf.co/v1/pdf/convert/to/html",
+      "https://api.pdf.co/v1/pdf/convert/to/xls",
       {
         name: outputFileName,
         url: uploadedFileUrl
@@ -55,27 +55,27 @@ export const convertPdfToHtml = async (req, res) => {
     );
 
     // Step 4: Download the HTML file to server
-    const htmlDownload = await axios.get(convertRes.data.url, { responseType: "stream" });
+    const xlsDownload = await axios.get(convertRes.data.url, { responseType: "stream" });
     const writer = fs.createWriteStream(outputPath);
 
-    htmlDownload.data.pipe(writer);
+    xlsDownload.data.pipe(writer);
 
     writer.on("finish", () => {
       res.status(200).json({
         success: true,
         fileName: outputFileName,
-        message: "PDF converted to HTML successfully",
+        message: "PDF converted to XLS successfully",
         downloadUrl: `/api/convert/download/${outputFileName}`
       });
     });
 
     writer.on("error", (err) => {
       console.error("File write error:", err.message);
-      res.status(500).json({ error: "Failed to write HTML file." });
+      res.status(500).json({ error: "Failed to write XLS file." });
     });
   } catch (error) {
-    console.error("PDF to HTML conversion error:", error.response?.data || error.message);
-    res.status(500).json({ error: "Failed to convert PDF to HTML." });
+    console.error("PDF to XLS conversion error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to convert PDF to XLS." });
   }
 };
   
